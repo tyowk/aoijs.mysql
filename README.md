@@ -59,32 +59,38 @@ new Database(client, {
 These 36 custom functions works like a normal existing functions *( only the name and inside the functions are different )* 
 
 And these functions can only work if you set `keepAoiDB` to true<br><br>
+
+**Cooldown functions**
 ```bash
 $mysqlAdvanceCooldown
 $mysqlChannelCooldown
-$mysqlCloseTicket
 $mysqlCooldown
-$mysqlCreateTemporaryVar
-$mysqlDatabasePing
-$mysqlDeleteVar
-$mysqlGetChannelVar
 $mysqlGetCooldownTime
-$mysqlGetGlobalUserVar
-$mysqlGetGuildVar
-$mysqlGetLeaderboardInfo
-$mysqlGetMessageVar
-$mysqlGetTimeout
-$mysqlGetUserVar
-$mysqlGetVar
 $mysqlGlobalCooldown
-$mysqlGlobalUserLeaderBoard
 $mysqlGuildCooldown
+```
+
+**Leaderboard functions**
+```bash
+$mysqlGetLeaderboardInfo
+$mysqlGlobalUserLeaderBoard
 $mysqlGuildLeaderBoard
-$mysqlIsTicket
-$mysqlIsVariableExist
-$mysqlNewTicket
 $mysqlRawLeaderboard
 $mysqlResetGlobalUserVar
+$mysqlUserLeaderBoard
+```
+
+**Variable functions**
+```bash
+$mysqlCreateTemporaryVar
+$mysqlDeleteVar
+$mysqlGetChannelVar
+$mysqlGetGlobalUserVar
+$mysqlGetGuildVar
+$mysqlGetMessageVar
+$mysqlGetUserVar
+$mysqlGetVar
+$mysqlIsVariableExist
 $mysqlResetGuildVar
 $mysqlResetUserVar
 $mysqlSetChannelVar
@@ -93,9 +99,17 @@ $mysqlSetGuildVar
 $mysqlSetMessageVar
 $mysqlSetUserVar
 $mysqlSetVar
+```
+
+**Other functions**
+```bash
+$mysqlCloseTicket
+$mysqlDatabasePing
+$mysqlGetTimeout
+$mysqlIsTicket
+$mysqlNewTicket
 $mysqlStopTimeout
 $mysqlTimeoutList
-$mysqlUserLeaderBoard
 ```
 </details>
 
