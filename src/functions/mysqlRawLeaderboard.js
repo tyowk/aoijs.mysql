@@ -10,7 +10,7 @@ module.exports = async (d) => {
         custom = "{top}. {name}: {value}",
         list = 10,
         page = 1,
-        table = d.client.db.tables[0],
+        table = d.client.mysql.tables[0],
     ] = data.inside.splits;
 
     if (!d.client.variableManager.has(variable.addBrackets())) return d.aoiError.fnError(d, "custom", {}, `Variable ${variable.addBrackets()} Not Found!`);
