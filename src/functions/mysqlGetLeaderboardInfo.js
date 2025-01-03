@@ -10,36 +10,42 @@ module.exports = async (d) => {
         return d.aoiError.fnError(d, "custom", {}, `Invalid type, must be "guild", "user" or "global"`);
     let key;
     let user;
-    if (type === "guild") {
-        key = `${variable}_${id}`;
-        user = await d.util.getGuild(d, id);
-    }
-    else if (type === "user") {
-        key = `${variable}_${id}_${d.guild?.id}`;
-        user = await d.util.getUser(d, id);
-    }
-    else if (type === "global") {
-        key = `${variable}_${id}`;
-        user = await d.util.getUser(d, id);
-    }
+    switch (type) {
+        case "guild":
+            key = `${variable}_${id}`;
+            user = await d.util.getGuild(d, id);
+            break;
+        case "user":
+            key = `${variable}_${id}_${d.guild?.id}`;
+            user = await d.util.getUser(d, id);
+            break;
+        case "global":
+            key = `${variable}_${id}`;
+            user = await d.util.getUser(d, id);
+            break;
+        case "channel":
+            key = `${variable}_${id}`;
+            user = await d.util.getChannel(d, id);
+            break;
+    };
     let db = await d.client.mysql.findMany(table, (data) => {
         return data.key.startsWith(key.split("_")[0]) && (type === "guild" ? data.key.split("_")[2] === key.split("_")[2] : true);
     });
     switch (format) {
         case "top":
-            data.result = db.sort((a, b) => b.value - a.value).findIndex((x) => x.key === key) + 1 || 0;
+            data.result = db?.sort((a, b) => b.value - a.value).findIndex((x) => x.key === key) + 1 || 0;
             break;
         case "value":
-            data.result = db.find((x) => x.key === key)?.value || 0;
+            data.result = db?.find((x) => x.key === key)?.value || 0;
             break;
         case "id":
-            data.result = user.id || null;
+            data.result = user?.id || null;
             break;
         case "username":
             data.result = user?.username || null;
             break;
         case "name":
-            data.result = user.name || null;
+            data.result = user?.name || null;
             break;
         case "tag":
             data.result = user?.tag;
