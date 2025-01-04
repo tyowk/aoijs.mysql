@@ -76,7 +76,6 @@ $mysqlGetLeaderboardInfo
 $mysqlGlobalUserLeaderBoard
 $mysqlGuildLeaderBoard
 $mysqlRawLeaderboard
-$mysqlResetGlobalUserVar
 $mysqlUserLeaderBoard
 ```
 
@@ -91,6 +90,7 @@ $mysqlGetMessageVar
 $mysqlGetUserVar
 $mysqlGetVar
 $mysqlIsVariableExist
+$mysqlResetGlobalUserVar
 $mysqlResetGuildVar
 $mysqlResetUserVar
 $mysqlSetChannelVar
@@ -129,17 +129,3 @@ new Database(client, {
 });
 ```
 ---
-
-<div align="center">
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<img src="https://aoi.js.org/_astro/icon_new.C4KTn9Lv_Z232q1W.webp" width="100">
-<br>
-<a href="https://aoi.js.org/invite">
-<img src="https://img.shields.io/discord/773352845738115102?logo=discord&logoColor=white&color=3182b0&style=for-the-badge">
-</a>
-</div>
