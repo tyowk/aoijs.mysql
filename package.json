@@ -1,6 +1,6 @@
 {
     "name": "aoijs.mysql",
-    "version": "4.5.0",
+    "version": "4.6.0",
     "description": "Implementation of MySQL in Aoi.js",
     "type": "commonjs",
     "main": "src/index.js",
@@ -31,7 +31,7 @@
         "url": "https://trakteer.id/tyowk"
     },{
         "type": "patreon",
-        "url": "https://www.patreon.com/tyowk_official"
+        "url": "https://www.patreon.com/tyowk_dev"
     }],
     "bugs": {
         "url": "https://github.com/tyowk/aoijs.mysql/issues"
