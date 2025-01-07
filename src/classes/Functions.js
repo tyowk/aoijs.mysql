@@ -1,9 +1,9 @@
-const fs = require("fs");
-const path = require("path");
-const chalk = require("chalk");
+const fs = require('fs');
+const path = require('path');
+const chalk = require('chalk');
 
 exports.Functions = class Functions {
-    constructor(client, debug, basePath = path.join(__dirname, '..', 'functions')) {
+    constructor(client, basePath, debug) {
         try {
             const files = fs.readdirSync(basePath);
             for (const file of files) {
@@ -22,15 +22,15 @@ exports.Functions = class Functions {
                     client.functionManager.createFunction({
                         name: `$${name}`,
                         type: 'djs',
-                        code: func
+                        code: func,
                     });
                 }
             }
-        } catch (err) { 
-            console.error(err); 
+        } catch (err) {
+            console.error(err);
         }
     }
-    
+
     debug(type, file) {
         const name = file.split('.')[0];
         if (type === 'success') {
