@@ -1,4 +1,7 @@
 exports.Database = require('./classes/Database.js').Database;
+exports.Functions = require('./classes/Functions.js').Functions;
+exports.Backup = require('./classes/Backup.js');
+
 exports.Events = {
     Connect: 'connect',
     Ready: 'connect',
@@ -8,5 +11,5 @@ exports.Events = {
     Acquire: 'acquire',
     Release: 'release',
     Connection: 'connection',
-    Enqueue: 'enqueue'
+    Enqueue: 'enqueue',
 };
