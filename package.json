@@ -1,6 +1,6 @@
 {
     "name": "aoijs.mysql",
-    "version": "4.6.0",
+    "version": "4.7.0",
     "description": "Implementation of MySQL in Aoi.js",
     "type": "commonjs",
     "main": "src/index.js",
@@ -17,7 +17,8 @@
     "license": "MIT",
     "dependencies": {
         "chalk": "^4.1.2",
-        "mysql2": "^3.12.0"
+        "mysql2": "^3.12.0",
+        "ora": "^5.4.1"
     },
     "devDependencies": {
         "aoi.js": "^6.9.0"
@@ -26,13 +27,16 @@
         "type": "git",
         "url": "git+https://github.com/tyowk/aoijs.mysql.git"
     },
-    "funding": [{
-        "type": "individual",
-        "url": "https://trakteer.id/tyowk"
-    },{
-        "type": "patreon",
-        "url": "https://www.patreon.com/tyowk_dev"
-    }],
+    "funding": [
+        {
+            "type": "individual",
+            "url": "https://trakteer.id/tyowk"
+        },
+        {
+            "type": "patreon",
+            "url": "https://www.patreon.com/tyowk_dev"
+        }
+    ],
     "bugs": {
         "url": "https://github.com/tyowk/aoijs.mysql/issues"
     },
