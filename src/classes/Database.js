@@ -15,20 +15,21 @@ exports.Database = class Database extends EventEmitter {
             throw new Error('"__aoijs_vars__" is reserved as a table name and cannot be used.');
 
         super();
+        const { url, uri, backup, tables, keepAoiDB, ...rest } = options;
         this.emit('debug', `connecting database...`);
         options.debug = options.debug || false;
-        options.keepAoiDB = options.keepAoiDB || false;
-        options.tables = Array.isArray(options.tables) ? options.tables : [options.tables] || ['main'];
-
+        options.keepAoiDB = keepAoiDB || false;
+        options.tables = Array.isArray(tables) ? tables : [tables] || ['main'];
+        
         Object.assign(this, {
             client: client,
             options: options,
-            pool: createPool(options.url || options.uri || { ...options }),
-            tables: [...options.tables, '__aoijs_vars__'],
+            pool: createPool(url || uri || { ...rest }),
+            tables: [...tables, '__aoijs_vars__'],
             debug: options.debug,
         });
 
-        if (options.keepAoiDB && !client.options?.disableAoiDB) {
+        if (keepAoiDB && !client.options?.disableAoiDB) {
             this.client.options.disableAoiDB = false;
             this.options.keepAoiDB = true;
             this.client.mysql = this || {};
@@ -38,7 +39,7 @@ exports.Database = class Database extends EventEmitter {
                 ready: true,
                 readyAt: Date.now(),
             };
-        } else if (!options.keepAoiDB && client.options?.disableAoiDB) {
+        } else if (!keepAoiDB && client.options?.disableAoiDB) {
             this.client.options.disableAoiDB = true;
             this.options.keepAoiDB = false;
             this.client.db = this || {};
