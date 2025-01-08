@@ -10,7 +10,7 @@ exports.Functions = class Functions {
                 const filePath = path.join(basePath, file);
                 const func = require(filePath);
                 if (fs.statSync(filePath).isDirectory()) {
-                    new this.constructor(client, debug, filePath);
+                    new this.constructor(client, filePath, debug);
                 } else {
                     if (typeof func !== 'function') {
                         if (debug) this.debug('error', file);
