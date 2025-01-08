@@ -277,7 +277,16 @@ exports.Database = class Database extends EventEmitter {
             if (typeof query === 'function') rows = rows.filter(query);
 
             if (limit) rows = rows.slice(0, limit);
-            const result = rows.map(row => ({ ...row, data: { value: row.value } }));
+            const result = rows.map(row => {
+                if (row.value) {
+                    try {
+                        row.value = JSON.parse(row.value);
+                    } catch {
+                        // uwu, oh you find me!
+                    }
+                }
+                return { ...row, data: { ...row } };
+            });
 
             this.emit(
                 'debug',
@@ -306,7 +315,7 @@ exports.Database = class Database extends EventEmitter {
                     // uwu, oh you find again and again!
                 }
             }
-            
+
             this.emit('debug', `returning findOne(${table}, ${key}) => `, result);
             return result;
         } catch (err) {
@@ -328,8 +337,26 @@ exports.Database = class Database extends EventEmitter {
             );
             const results =
                 typeof filter === 'function'
-                    ? rows.filter(filter).map(row => ({ key: row.key, value: row.value }))
-                    : rows.map(row => ({ key: row.key, value: row.value }));
+                    ? rows.filter(filter).map(row => {
+                          if (row.value) {
+                              try {
+                                  row.value = JSON.parse(row.value);
+                              } catch {
+                                  // uwu, oh you find me!
+                              }
+                          }
+                          return { key: row.key, value: row.value };
+                      })
+                    : rows.map(row => {
+                          if (row.value) {
+                              try {
+                                  row.value = JSON.parse(row.value);
+                              } catch {
+                                  // uwu, oh you find me!
+                              }
+                          }
+                          return { key: row.key, value: row.value };
+                      });
 
             const result = results.slice(0, list);
             this.emit(
