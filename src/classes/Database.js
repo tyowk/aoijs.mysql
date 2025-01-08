@@ -161,7 +161,7 @@ exports.Database = class Database extends EventEmitter {
 
             if (result && result?.value) {
                 try {
-                    result.value = JSON.stringify(result.value);
+                    result.value = JSON.parse(result.value);
                 } catch {
                     // uwu, oh you find me!
                 }
@@ -299,6 +299,14 @@ exports.Database = class Database extends EventEmitter {
             const [rows] = await this.pool?.query(`SELECT value FROM \`${table}\` WHERE \`key\` = ?`, [key]);
             const result = rows.length > 0 ? rows[0] : null;
 
+            if (result && result?.value) {
+                try {
+                    result.value = JSON.parse(result.value);
+                } catch {
+                    // uwu, oh you find again and again!
+                }
+            }
+            
             this.emit('debug', `returning findOne(${table}, ${key}) => `, result);
             return result;
         } catch (err) {
