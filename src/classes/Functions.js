@@ -1,42 +1,49 @@
-const fs = require('fs');
-const path = require('path');
-const chalk = require('chalk');
+const { readdirSync, statSync } = require('node:fs');
+const { blue, cyan, red } = require('chalk');
+const { join } = require('node:path');
 
 exports.Functions = class Functions {
     constructor(client, basePath, debug) {
+        if (!basePath || !client) return;
+        
         try {
-            const files = fs.readdirSync(basePath);
+            const files = readdirSync(basePath);
             for (const file of files) {
-                const filePath = path.join(basePath, file);
-                const func = require(filePath);
-                if (fs.statSync(filePath).isDirectory()) {
-                    new this.constructor(client, filePath, debug);
-                } else {
-                    if (typeof func !== 'function') {
-                        if (debug) this.debug('error', file);
-                        continue;
-                    }
+                const filePath = join(basePath, file);
+                if (!statSync(filePath).isDirectory() && file.endsWith('.js')) {
+                    const func = require(filePath);
+                    const name = `$${file?.replaceAll('.js', '')}`;
 
-                    const name = file.split('.')[0];
-                    if (debug) this.debug('success', file);
-                    client.functionManager.createFunction({
-                        name: `$${name}`,
-                        type: 'djs',
-                        code: func,
-                    });
+                    if (typeof func !== 'function' && typeof func === 'object' && !Array.isArray(func)) {
+                        client.functionManager.createFunction(func);
+                        if (debug) this.#debug('success', func?.name || name);
+                    } else if (typeof func === 'function') {
+                        client.functionManager.createFunction({
+                            name,
+                            type: 'djs',
+                            code: func,
+                        });
+
+                        if (debug) this.#debug('success', name);
+                    } else {
+                        this.#debug('error', name);
+                    }
+                } else {
+                    new this.constructor(client, filePath, debug);
                 }
             }
         } catch (err) {
-            console.error(err);
+            this.#debug('error', 'ALL', err);
         }
     }
 
-    debug(type, file) {
-        const name = file.split('.')[0];
+    #debug(type, name, err) {
         if (type === 'success') {
-            console.log(`[${chalk.blue('DEBUG')}] :: Function loaded: ${chalk.cyan(`$${name}`)}`);
+            console.log(`[${blue('DEBUG')}] :: Function loaded: ${cyan(name)}`);
+            if (err) console.error(err);
         } else if (type === 'error') {
-            console.log(`[${chalk.blue('DEBUG')}] :: Failed to Load: ${chalk.red(`$${name}`)}`);
+            console.log(`[${blue('DEBUG')}] :: Failed to Load: ${red(name)}`);
+            if (err) console.error(err);
         }
     }
 };
