@@ -12,12 +12,10 @@ async function InitializeTimeout (d, duration, timeoutData, onReady) {
     let cmds = d.client.cmd?.timeout.V();
 
     if (onReady) {
-        if (d.client?.db?.db?.readyAt) {
+        if (d.client?.mysql?.db?.readyAt) {
             await handleResidueData(d);
         } else {
-            d.client.db.db.on("ready", async () => {
-                await handleResidueData(d);
-            });
+            d.client.mysql.db.on("ready", async () => await handleResidueData(d));
         }
         return;
     }
@@ -31,17 +29,17 @@ async function InitializeTimeout (d, duration, timeoutData, onReady) {
                 if (cmd.channel) {
                     const channel = await d.util.getChannel(d, cmd.channel);
                     if (!channel) return d.aoiError.fnError(d, "custom", {}, `Invalid channel ID in timeout command: ${cmd.channel}`);
-                    await d.interpreter(d.client, { channel }, [], cmd, d.client.db, false, undefined, { timeoutData });
+                    await d.interpreter(d.client, { channel }, [], cmd, d.client.mysql, false, undefined, { timeoutData });
                 } else {
-                    await d.interpreter(d.client, {}, [], cmd, d.client.db, false, undefined, { timeoutData });
+                    await d.interpreter(d.client, {}, [], cmd, d.client.mysql, false, undefined, { timeoutData });
                 }
             }
 
-            await d.client.db.delete("__aoijs_vars__", `setTimeout_${timeoutData.__id__}`);
+            await d.client.mysql.delete("__aoijs_vars__", `setTimeout_${timeoutData.__id__}`);
             clearInterval(interval);
         }, 3600000);
 
-        await d.client.db.set("__aoijs_vars__", "setTimeout", timeoutData.__id__, {
+        await d.client.mysql.set("__aoijs_vars__", "setTimeout", timeoutData.__id__, {
             ...timeoutData,
             __timerID__: interval[Symbol.toPrimitive]()
         });
@@ -52,25 +50,25 @@ async function InitializeTimeout (d, duration, timeoutData, onReady) {
                 if (cmd.channel) {
                     const channel = await d.util.getChannel(d, cmd.channel);
                     if (!channel) return d.aoiError.fnError(d, "custom", {}, `Invalid channel ID in timeout command: ${cmd.channel}`);
-                    await d.interpreter(d.client, { channel }, [], cmd, d.client.db, false, undefined, { timeoutData });
+                    await d.interpreter(d.client, { channel }, [], cmd, d.client.mysql, false, undefined, { timeoutData });
                 } else {
-                    await d.interpreter(d.client, {}, [], cmd, d.client.db, false, undefined, { timeoutData });
+                    await d.interpreter(d.client, {}, [], cmd, d.client.mysql, false, undefined, { timeoutData });
                 }
             }
 
-            await d.client.db.delete("__aoijs_vars__", `setTimeout_${timeoutData.__id__}`);
+            await d.client.mysql.delete("__aoijs_vars__", `setTimeout_${timeoutData.__id__}`);
         }, duration);
 
-        await d.client.db.set("__aoijs_vars__", "setTimeout", timeoutData.__id__, {
+        await d.client.mysql.set("__aoijs_vars__", "setTimeout", timeoutData.__id__, {
             ...timeoutData,
             __timerID__: timeout[Symbol.toPrimitive]()
         });
     }
 };
 
-async function handleResidueData(d) {
+async function handleResidueData (d) {
     const MAX_SAFE_TIMEOUT_DURATION = 0x7fffffff;
-    const td = await d.client.db.all("__aoijs_vars__", (data) => data.key.startsWith("setTimeout_"));
+    const td = await d.client.mysql.all("__aoijs_vars__", (data) => data.key.startsWith("setTimeout_"));
     let cmds = d.client.cmd?.timeout.V();
 
     for (const data of td) {
@@ -88,17 +86,17 @@ async function handleResidueData(d) {
                         if (cmd.channel) {
                             const channel = await d.util.getChannel(d, cmd.channel);
                             if (!channel) return d.aoiError.fnError(d, "custom", {}, `Invalid channel ID in timeout command: ${cmd.channel}`);
-                            await d.interpreter(d.client, { channel }, [], cmd, d.client.db, false, undefined, { timeoutData });
+                            await d.interpreter(d.client, { channel }, [], cmd, d.client.mysql, false, undefined, { timeoutData });
                         } else {
-                            await d.interpreter(d.client, {}, [], cmd, d.client.db, false, undefined, { timeoutData });
+                            await d.interpreter(d.client, {}, [], cmd, d.client.mysql, false, undefined, { timeoutData });
                         }
                     }
 
-                    await d.client.db.delete("__aoijs_vars__", `setTimeout_${timeoutData.__id__}`);
+                    await d.client.mysql.delete("__aoijs_vars__", `setTimeout_${timeoutData.__id__}`);
                     clearInterval(interval);
                 }, 3600000);
 
-                await d.client.db.set("__aoijs_vars__", "setTimeout", timeoutData.__id__, {
+                await d.client.mysql.set("__aoijs_vars__", "setTimeout", timeoutData.__id__, {
                     ...timeoutData,
                     __timerID__: interval[Symbol.toPrimitive]()
                 });
@@ -109,16 +107,16 @@ async function handleResidueData(d) {
                         if (cmd.channel) {
                             const channel = await d.util.getChannel(d, cmd.channel);
                             if (!channel) return d.aoiError.fnError(d, "custom", {}, `Invalid channel ID in timeout command: ${cmd.channel}`);
-                            await d.interpreter(d.client, { channel }, [], cmd, d.client.db, false, undefined, { timeoutData });
+                            await d.interpreter(d.client, { channel }, [], cmd, d.client.mysql, false, undefined, { timeoutData });
                         } else {
-                            await d.interpreter(d.client, {}, [], cmd, d.client.db, false, undefined, { timeoutData });
+                            await d.interpreter(d.client, {}, [], cmd, d.client.mysql, false, undefined, { timeoutData });
                         }
                     }
 
-                    await d.client.db.delete("__aoijs_vars__", `setTimeout_${timeoutData.__id__}`);
+                    await d.client.mysql.delete("__aoijs_vars__", `setTimeout_${timeoutData.__id__}`);
                 }, remaining);
 
-                await d.client.db.set("__aoijs_vars__", "setTimeout", timeoutData.__id__, {
+                await d.client.mysql.set("__aoijs_vars__", "setTimeout", timeoutData.__id__, {
                     ...timeoutData,
                     __timerID__: timeout[Symbol.toPrimitive]()
                 });
@@ -129,13 +127,13 @@ async function handleResidueData(d) {
                 if (cmd.channel) {
                     const channel = d.client.channels.cache.get(cmd.channel) || (await d.client.channels.fetch(cmd.channel).catch(() => null));
                     if (!channel) return d.aoiError.fnError(d, "custom", {}, `Invalid channel ID in timeout command: ${cmd.channel}`);
-                    await d.interpreter(d.client, { channel }, [], cmd, d.client.db, false, undefined, { timeoutData });
+                    await d.interpreter(d.client, { channel }, [], cmd, d.client.mysql, false, undefined, { timeoutData });
                 } else {
-                    await d.interpreter(d.client, {}, [], cmd, d.client.db, false, undefined, { timeoutData });
+                    await d.interpreter(d.client, {}, [], cmd, d.client.mysql, false, undefined, { timeoutData });
                 }
             }
 
-            await d.client.db.delete("__aoijs_vars__", `setTimeout_${timeoutData.__id__}`);
+            await d.client.mysql.delete("__aoijs_vars__", `setTimeout_${timeoutData.__id__}`);
         }
     }
 }
