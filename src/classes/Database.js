@@ -17,6 +17,17 @@ exports.Database = class Database extends EventEmitter {
             throw new Error('"__aoijs_vars__" is reserved as a table name and cannot be used.');
 
         super();
+        client.once("ready", async () => {
+            await InitializeTimeout({
+                client: { mysql: this, ...this.client },
+                interpreter: Interpreter,
+                aoiError: AoiError,
+                command: {},
+                error: (message) => console.log(`TimeoutError: ${message}`)
+            }, undefined, undefined, true);
+            setInterval(async () => await this.#handleResidueData(this.client), 3.6e6);
+        });
+        
         const { url, uri, backup, tables, keepAoiDB, ...rest } = options;
         this.emit('debug', `connecting database...`);
         options.debug = options.debug || false;
@@ -101,9 +112,6 @@ exports.Database = class Database extends EventEmitter {
                     'white',
                     { text: ' aoijs.mysql ', textColor: 'cyan' },
                 );
-
-            await InitializeTimeout({ client: { mysql: this, ...this.client }, interpreter: Interpreter, aoiError: AoiError, command: {} }, undefined, undefined, true);
-            setInterval(async () => await this.#handleResidueData(this.client), 3.6e6);
 
             if (this.options.backup && this.options.backup?.enable === true && this.options.backup?.directory) {
                 const backupProcess = require('./Backup.js');
