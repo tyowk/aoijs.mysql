@@ -7,7 +7,7 @@ exports.Timeout = function Timeout (d, name, duration, timeoutData) {
     return timeoutData.__id__;
 };
 
-async function InitializeTimeout (d, duration, timeoutData, onReady) {
+exports.InitializeTimeout = async function InitializeTimeout (d, duration, timeoutData, onReady) {
     const MAX_SAFE_TIMEOUT_DURATION = 0x7fffffff;
     let cmds = d.client.cmd?.timeout.V();
 
@@ -84,7 +84,7 @@ async function handleResidueData (d) {
                     cmds = cmds.filter((x) => x.name === timeoutData.__timeoutName__);
                     for (const cmd of cmds) {
                         if (cmd.channel) {
-                            const channel = await d.util.getChannel(d, cmd.channel);
+                            const channel = await getChannel(d.client, cmd.channel);
                             if (!channel) return d.aoiError.fnError(d, "custom", {}, `Invalid channel ID in timeout command: ${cmd.channel}`);
                             await d.interpreter(d.client, { channel }, [], cmd, d.client.mysql, false, undefined, { timeoutData });
                         } else {
@@ -105,7 +105,7 @@ async function handleResidueData (d) {
                     cmds = cmds.filter((x) => x.name === timeoutData.__timeoutName__);
                     for (const cmd of cmds) {
                         if (cmd.channel) {
-                            const channel = await d.util.getChannel(d, cmd.channel);
+                            const channel = await getChannel(d.client, cmd.channel);
                             if (!channel) return d.aoiError.fnError(d, "custom", {}, `Invalid channel ID in timeout command: ${cmd.channel}`);
                             await d.interpreter(d.client, { channel }, [], cmd, d.client.mysql, false, undefined, { timeoutData });
                         } else {
@@ -125,7 +125,7 @@ async function handleResidueData (d) {
             cmds = cmds.filter((x) => x.name === timeoutData.__timeoutName__);
             for (const cmd of cmds) {
                 if (cmd.channel) {
-                    const channel = d.client.channels.cache.get(cmd.channel) || (await d.client.channels.fetch(cmd.channel).catch(() => null));
+                    const channel = await getChannel(d.client, cmd.channel);
                     if (!channel) return d.aoiError.fnError(d, "custom", {}, `Invalid channel ID in timeout command: ${cmd.channel}`);
                     await d.interpreter(d.client, { channel }, [], cmd, d.client.mysql, false, undefined, { timeoutData });
                 } else {
@@ -136,4 +136,8 @@ async function handleResidueData (d) {
             await d.client.mysql.delete("__aoijs_vars__", `setTimeout_${timeoutData.__id__}`);
         }
     }
+}
+
+async function getChannel(client, channel) {
+    return client.channels.cache.get(channel) || (await client.channels.fetch(channel).catch(() => null));
 }
