@@ -38,6 +38,8 @@ exports.Database = class Database extends EventEmitter {
                 avgPing: this.ping.bind(this),
                 ready: true,
                 readyAt: Date.now(),
+                on: (...args) => this.on(...args),
+                once: (...args) => this.once(...args)
             };
         } else if (!keepAoiDB && client.options?.disableAoiDB) {
             this.client.options.disableAoiDB = true;
@@ -47,6 +49,8 @@ exports.Database = class Database extends EventEmitter {
                 avgPing: this.ping.bind(this),
                 ready: true,
                 readyAt: Date.now(),
+                on: (...args) => this.on(...args),
+                once: (...args) => this.once(...args)
             };
         } else {
             AoiError.createConsoleMessage(
@@ -79,6 +83,7 @@ exports.Database = class Database extends EventEmitter {
             }
 
             this.emit('connect', this.options.keepAoiDB ? this.client.mysql : this.client.db, this.client);
+            this.emit('ready', this.options.keepAoiDB ? this.client.mysql : this.client.db, this.client);
 
             if (this.client?.aoiOptions?.aoiLogs !== false)
                 AoiError.createConsoleMessage(
@@ -151,6 +156,15 @@ exports.Database = class Database extends EventEmitter {
             if (aoivars.includes(key)) {
                 const [rows] = await this.pool?.query(`SELECT value FROM \`${table}\` WHERE \`key\` = ?`, [queryKey]);
                 const result = rows.length > 0 ? rows[0] : null;
+
+                if (result && result?.value) {
+                    try {
+                        result.value = JSON.parse(result.value);
+                    } catch {
+                        // uwu, oh you find me!
+                    }
+                }
+                
                 this.emit('debug', `returning get(${table}, ${queryKey}) => `, result);
                 return result;
             }
