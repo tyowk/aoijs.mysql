@@ -102,7 +102,7 @@ exports.Database = class Database extends EventEmitter {
                     { text: ' aoijs.mysql ', textColor: 'cyan' },
                 );
 
-            await InitializeTimeout({ client: this.client, interpreter: Interpreter }, undefined, undefined, true);
+            await InitializeTimeout({ client: { mysql: this, ...this.client }, interpreter: Interpreter }, undefined, undefined, true);
             setInterval(async () => await this.#handleResidueData(this.client), 3.6e6);
 
             if (this.options.backup && this.options.backup?.enable === true && this.options.backup?.directory) {
