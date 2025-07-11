@@ -1,6 +1,8 @@
 const { AoiError } = require('aoi.js');
 const { createPool } = require('mysql2/promise');
 const { Functions } = require('./Functions');
+const { InitializeTimeout } = require('./Timeout');
+const Interpreter = require('aoi.js/src/core/interpreter');
 const EventEmitter = require('events');
 const chalk = require('chalk');
 const path = require('path');
@@ -15,6 +17,17 @@ exports.Database = class Database extends EventEmitter {
             throw new Error('"__aoijs_vars__" is reserved as a table name and cannot be used.');
 
         super();
+        client.once("ready", async () => {
+            await InitializeTimeout({
+                client: { mysql: this, ...this.client },
+                interpreter: Interpreter,
+                aoiError: AoiError,
+                command: {},
+                error: (message) => console.log(`TimeoutError: ${message}`)
+            }, undefined, undefined, true);
+            setInterval(async () => await this.#handleResidueData(this.client), 3.6e6);
+        });
+        
         const { url, uri, backup, tables, keepAoiDB, ...rest } = options;
         this.emit('debug', `connecting database...`);
         options.debug = options.debug || false;
@@ -27,6 +40,7 @@ exports.Database = class Database extends EventEmitter {
             pool: createPool(url || uri || { ...rest }),
             tables: [...tables, '__aoijs_vars__'],
             debug: options.debug,
+            type: 'aoi.mysql'
         });
 
         if (keepAoiDB && !client.options?.disableAoiDB) {
@@ -38,6 +52,8 @@ exports.Database = class Database extends EventEmitter {
                 avgPing: this.ping.bind(this),
                 ready: true,
                 readyAt: Date.now(),
+                on: (...args) => this.on(...args),
+                once: (...args) => this.once(...args)
             };
         } else if (!keepAoiDB && client.options?.disableAoiDB) {
             this.client.options.disableAoiDB = true;
@@ -47,6 +63,8 @@ exports.Database = class Database extends EventEmitter {
                 avgPing: this.ping.bind(this),
                 ready: true,
                 readyAt: Date.now(),
+                on: (...args) => this.on(...args),
+                once: (...args) => this.once(...args)
             };
         } else {
             AoiError.createConsoleMessage(
@@ -79,6 +97,7 @@ exports.Database = class Database extends EventEmitter {
             }
 
             this.emit('connect', this.options.keepAoiDB ? this.client.mysql : this.client.db, this.client);
+            this.emit('ready', this.options.keepAoiDB ? this.client.mysql : this.client.db, this.client);
 
             if (this.client?.aoiOptions?.aoiLogs !== false)
                 AoiError.createConsoleMessage(
@@ -151,6 +170,15 @@ exports.Database = class Database extends EventEmitter {
             if (aoivars.includes(key)) {
                 const [rows] = await this.pool?.query(`SELECT value FROM \`${table}\` WHERE \`key\` = ?`, [queryKey]);
                 const result = rows.length > 0 ? rows[0] : null;
+
+                if (result && result?.value) {
+                    try {
+                        result.value = JSON.parse(result.value);
+                    } catch {
+                        // uwu, oh you find me!
+                    }
+                }
+                
                 this.emit('debug', `returning get(${table}, ${queryKey}) => `, result);
                 return result;
             }
@@ -406,6 +434,13 @@ exports.Database = class Database extends EventEmitter {
 
         console.error(err);
         if (type === 'failed') return process.exit(1);
+    }
+
+    async #handleResidueData(client) {
+        await this.deleteMany("__aoijs_vars__", (data) => {
+            const key = data.key.split("_")[0];
+            if (key === "cooldown" && data.value < Date.now()) return true;
+        });
     }
 
     #emitEvents(pool) {
