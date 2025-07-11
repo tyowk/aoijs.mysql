@@ -7,7 +7,7 @@ exports.Timeout = function Timeout (d, name, duration, timeoutData) {
     return timeoutData.__id__;
 };
 
-exports.InitializeTimeout = async function InitializeTimeout (d, duration, timeoutData, onReady) {
+async function InitializeTimeout (d, duration, timeoutData, onReady) {
     const MAX_SAFE_TIMEOUT_DURATION = 0x7fffffff;
     let cmds = d.client.cmd?.timeout.V();
 
@@ -137,6 +137,9 @@ async function handleResidueData (d) {
         }
     }
 }
+
+exports.InitializeTimeout = InitializeTimeout;
+
 
 async function getChannel(client, channel) {
     return client.channels.cache.get(channel) || (await client.channels.fetch(channel).catch(() => null));
