@@ -1,6 +1,8 @@
 const { AoiError } = require('aoi.js');
 const { createPool } = require('mysql2/promise');
 const { Functions } = require('./Functions');
+const { InitializeTimeout } = require('./Timeout');
+const Interpreter = require('aoi.js/src/core/interpreter');
 const EventEmitter = require('events');
 const chalk = require('chalk');
 const path = require('path');
@@ -27,6 +29,7 @@ exports.Database = class Database extends EventEmitter {
             pool: createPool(url || uri || { ...rest }),
             tables: [...tables, '__aoijs_vars__'],
             debug: options.debug,
+            type: 'aoi.mysql'
         });
 
         if (keepAoiDB && !client.options?.disableAoiDB) {
@@ -98,6 +101,9 @@ exports.Database = class Database extends EventEmitter {
                     'white',
                     { text: ' aoijs.mysql ', textColor: 'cyan' },
                 );
+
+            await InitializeTimeout({ client: this.client, interpreter: Interpreter }, undefined, undefined, true);
+            setInterval(async () => await this.#handleResidueData(this.client), 3.6e6);
 
             if (this.options.backup && this.options.backup?.enable === true && this.options.backup?.directory) {
                 const backupProcess = require('./Backup.js');
@@ -420,6 +426,13 @@ exports.Database = class Database extends EventEmitter {
 
         console.error(err);
         if (type === 'failed') return process.exit(1);
+    }
+
+    async #handleResidueData(client) {
+        await this.deleteMany("__aoijs_vars__", (data) => {
+            const key = data.key.split("_")[0];
+            if (key === "cooldown" && data.value < Date.now()) return true;
+        });
     }
 
     #emitEvents(pool) {
